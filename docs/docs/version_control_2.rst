@@ -1,5 +1,5 @@
-Version Control with Git: Part 2
-================================
+Collaborating on GitHub
+=======================
 
 In the first Git module, we learned to work independently with Git repositories
 on the local command line. In this second part, we will focus on using the GitHub
@@ -48,56 +48,57 @@ home page of the repository on GitHub includes the string we need to identify it
    Follow the instructions for pushing an existing repository.
 
 
-Back on class server in the local Git repo, link it to the repo on GitHub and confirm
+Back on Frontera in the local Git repo, link it to the repo on GitHub and confirm
 the link was created:
-
-.. code-block:: console
-
-   [student-login]$ git remote add origin git@github.com:wjallen/python-test.git
-   [student-login]$ git remote -v
-   origin  git@github.com:wjallen/python-test.git (fetch)
-   origin  git@github.com:wjallen/python-test.git (push)
 
 .. attention::
 
    Make sure to use the URL for your repository instead of the one listed here.
 
+
+.. code-block:: console
+
+   [fta]$ git remote add origin git@github.com:username/python-test.git
+   [fta]$ git remote -v
+   origin  git@github.com:username/python-test.git (fetch)
+   origin  git@github.com:username/python-test.git (push)
+
+
 The name ``origin`` is a local nickname for your remote repository. We could use
 something else if we wanted to, but ``origin`` is by far the most common choice.
 
 
-Another key step is to set up SSH keys for authentication. GitHub no longer
+Another crucial step is to set up SSH keys for authentication. GitHub no longer
 allows simple username / password authentication from the command line. To set
 up SSH keys, click on:
 
 Your account => Settings => SSH and GPG keys => New SSH key
 
-In the "Title" box, add a memorable name for this key like "student-login". In the "Key"
-box, cut and paste the contents of your existing public key on the class server.
+In the "Title" box, add a memorable name for this key like "Frontera". In the "Key"
+box, cut and paste the contents of your existing public key on Frontera.
 You can find it by executing the command:
 
 .. code-block:: console
 
-   [student-login]$ cat ~/.ssh/id_rsa.pub
+   [fta]$ cat ~/.ssh/id_rsa.pub
    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDF8crdmqgk2GhRmsLPcREWjzc9zb2B....
    ........................................................................
 
 
-If you do not have an existing SSH key, it is easy to make your own. For this class,
-we will name the SSH key generated for GitHub slightly different than the standard
-key name so as not to accidentally overwrite the keys we will use later on to log
-in to our Jetstream VMs.
+If you do not have an existing SSH key, it is easy to make your own. For this workshop,
+if you must make SSH keys make sure to name them something other than that standard key
+name so that you do not break anything:
 
 .. code-block:: console
 
-   [student-login]$ mkdir -p ~/.ssh/ && ssh-keygen -f ~/.ssh/github_rsa -t rsa -b 3072 -N ""
-   [student-login]$ cat ~/.ssh/github_rsa.pub
+   [fta]$ mkdir -p ~/.ssh/ && ssh-keygen -f ~/.ssh/github_rsa -t rsa -b 3072 -N ""
+   [fta]$ cat ~/.ssh/github_rsa.pub
    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDF8crdmqgk2GhRmsLPcREWjzc9zb2B....
    ........................................................................
 
-One other small caveat is that we must configure our systems to use this new
-key when connecting to GitHub. Open up ``~/.ssh/config`` with your favorite
-text editor and add the following two lines:
+If you create your own key with a non-standard key name, one caveat is that you
+must configure your system to use this new key when connecting to GitHub. Open
+up ``~/.ssh/config`` with your favorite text editor and add the following two lines:
 
 .. code-block:: console
 
@@ -110,15 +111,15 @@ repository to the repository on GitHub:
 
 .. code-block:: console
 
-   [student-login]$ git branch -M main
-   [student-login]$ git push -u origin main
+   [fta]$ git branch -M main
+   [fta]$ git push -u origin main
    Warning: Permanently added the ECDSA host key for IP address '140.82.112.4' to the list of known hosts.
    Counting objects: 3, done.
    Delta compression using up to 8 threads.
    Compressing objects: 100% (2/2), done.
    Writing objects: 100% (3/3), 223 bytes | 0 bytes/s, done.
    Total 3 (delta 0), reused 0 (delta 0)
-   To git@github.com:wjallen/python-test.git
+   To git@github.com:username/python-test.git
     * [new branch]      main -> main
    Branch main set up to track remote branch main from origin.
 
@@ -129,10 +130,10 @@ you can expect to follow the changes with the commands:
 .. code-block:: console
 
    # Make some edits to "example_file.py"
-   [student-login]$ git status
-   [student-login]$ git add example_file.py
-   [student-login]$ git commit -m "description of changes"
-   [student-login]$ git push
+   [fta]$ git status
+   [fta]$ git add example_file.py
+   [fta]$ git commit -m "description of changes"
+   [fta]$ git push
 
 
 
@@ -144,7 +145,7 @@ a full copy of the ``python-test`` repo including all the commit history by perf
 
 .. code-block:: console
 
-   [student-login]$ git clone git@github.com:wjallen/python-test.git
+   [fta]$ git clone git@github.com:username/python-test.git
    Cloning into 'python-test'...
    remote: Enumerating objects: 15, done.
    remote: Counting objects: 100% (15/15), done.
@@ -161,8 +162,8 @@ changes back down.
 
 .. code-block:: console
 
-   [student-login]$ git remote update    # checks to see if there are updates in the remote
-   [student-login]$ git pull             # pulls those updates down to local
+   [fta]$ git remote update    # checks to see if there are updates in the remote
+   [fta]$ git pull             # pulls those updates down to local
 
 .. warning::
 
@@ -214,10 +215,6 @@ Pull requests are proposed changes to a repository submitted by a user and
 accepted or rejected by a repository's collaborators. Like issues, pull requests
 each have their own discussion forum. For more information, see `About pull
 requests <https://help.github.com/articles/about-pull-requests>`_.
-
-
-
-
 
 
 
@@ -297,8 +294,7 @@ including:
 
 **README.md**: The landing page of your repository on GitHub will display the
 contents of README.md, if it exists. This is a good place to describe your
-project and list the appropriate citations. *Please note that all of your
-homeworks, midterm, and final will require READMEs*.
+project and list the appropriate citations.
 
 **LICENSE.txt**: See if your repository needs a
 `license <https://help.github.com/articles/licensing-a-repository/>`_.

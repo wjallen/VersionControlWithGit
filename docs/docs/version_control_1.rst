@@ -1,7 +1,7 @@
-Version Control with Git: Part 1
-================================
+Version Control with Git
+========================
 
-In the next two modules, we will look at the version control system **Git**. Of
+In this section, we will look at the version control system **Git**. Of
 the numerous version control systems available (Git, Subversion, CVS, Mercurial),
 Git seems to be the most popular, and we generally find that it is great for:
 
@@ -12,7 +12,7 @@ Git seems to be the most popular, and we generally find that it is great for:
 * What it lacks in user-friendliness it makes up for in good documentation
 * Intuitive web platforms available
 
-After going through the two Git modules, students should be able to:
+After going through these Git modules, you should be able to:
 
 * Create a new Git repository hosted on GitHub
 * Clone a repository, commit and push changes to the repository
@@ -75,23 +75,23 @@ collaboration among different people.
 Setting up Git
 --------------
 
-Log on to the class server and check which version of Git is in your
-``PATH``.
+After logging on to Frontera (or on your local laptop if Git is installed),
+check which version of Git is in your ``PATH``: 
 
-.. note::
+.. attention::
 
    Below, replace ``username`` with your TACC username.
 
 .. code-block:: console
 
-   [local]$ ssh username@student-login.tacc.utexas.edu
+   [local]$ ssh username@frontera.tacc.utexas.edu
    (enter password)
    (enter token)
 
-   [student-login]$ which git
-   /usr/bin/git
-   [student-login]$ git --version
-   git version 2.25.1
+   [fta]$ which git
+   /opt/apps/git/2.24.1/bin/git
+   [fta]$ git --version
+   git version 2.24.1
 
 When we use Git on a new computer for the first time, we need to configure a few
 things. Below are a few examples of configurations we will set as we get started
@@ -105,8 +105,8 @@ what we actually want to do. Here is how we set up our environment:
 
 .. code-block:: console
 
-   [student-login]$ git config --global user.name "YOUR NAME HERE"
-   [student-login]$ git config --global user.email "YOUR@EMAIL.HERE"
+   [fta]$ git config --global user.name "YOUR NAME HERE"
+   [fta]$ git config --global user.email "YOUR@EMAIL.HERE"
 
 Please use your own name and email address associated with your GitHub account.
 This user name and email will be connected with your subsequent Git activity,
@@ -126,33 +126,33 @@ another Git host server in the future will include this information.
 Create a New Repository on the Command Line
 -------------------------------------------
 
-First, let's navigate to our home directory and create a folder for this class
+First, let's navigate to our home directory and create a folder for this workshop
 and for working with Git (if you haven't done it already):
 
 .. code-block:: console
 
-   [student-login]$ cd ~/
-   [student-login]$ mkdir coe-332    # you may already have a folder for this class
-   [student-login]$ cd coe-332
-   [student-login]$ mkdir my-first-git-repo
-   [student-login]$ cd my-first-git-repo/
-   [student-login]$ pwd
-   /home/username/coe-332/my-first-git-repo
+   [fta]$ cd ~/
+   [fta]$ mkdir git-workshop    # you may choose any name
+   [fta]$ cd git-workshop
+   [fta]$ mkdir my-first-git-repo
+   [fta]$ cd my-first-git-repo/
+   [fta]$ pwd
+   /home1/01234/username/git-workshop/my-first-git-repo
 
 Then we will use a Git command to initialize this directory as a new Git
 repository - or a place where Git can start to organize versions of our files.
 
 .. code-block:: console
 
-   [student-login]$ git init
-   Initialized empty Git repository in /home/username/coe-332/my-first-git-repo/.git/
+   [fta]$ git init
+   Initialized empty Git repository in /home1/01234/username/git-workshop/my-first-git-repo/.git/
 
 If we use ``ls -a``, we can see that Git has created a hidden directory called
 ``.git``:
 
 .. code-block:: console
 
-   [student-login]$ ls -a
+   [fta]$ ls -a
    ./  ../  .git/
 
 Use the ``find`` command to get a overview of the contents of the ``.git/``
@@ -160,30 +160,37 @@ directory:
 
 .. code-block:: console
 
-   [student-login]$ find .git/
-   .git
-   .git/refs
-   .git/refs/heads
-   .git/refs/tags
-   .git/branches
-   .git/description
-   .git/hooks
-   .git/hooks/applypatch-msg.sample
-   .git/hooks/commit-msg.sample
-   .git/hooks/post-update.sample
-   .git/hooks/pre-applypatch.sample
-   .git/hooks/pre-commit.sample
-   .git/hooks/pre-push.sample
-   .git/hooks/pre-rebase.sample
-   .git/hooks/prepare-commit-msg.sample
-   .git/hooks/update.sample
-   .git/info
-   .git/info/exclude
-   .git/HEAD
-   .git/config
-   .git/objects
-   .git/objects/pack
-   .git/objects/info
+   [fta]$ tree .git/
+   .git/
+   ├── branches
+   ├── config
+   ├── description
+   ├── HEAD
+   ├── hooks
+   │   ├── applypatch-msg.sample
+   │   ├── commit-msg.sample
+   │   ├── fsmonitor-watchman.sample
+   │   ├── post-update.sample
+   │   ├── pre-applypatch.sample
+   │   ├── pre-commit.sample
+   │   ├── pre-merge-commit.sample
+   │   ├── prepare-commit-msg.sample
+   │   ├── pre-push.sample
+   │   ├── pre-rebase.sample
+   │   ├── pre-receive.sample
+   │   └── update.sample
+   ├── info
+   │   └── exclude
+   ├── objects
+   │   ├── info
+   │   └── pack
+   └── refs
+       ├── heads
+       └── tags
+   
+   9 directories, 16 files
+
+
 
 Git uses this special sub-directory to store all the information about the
 project, including all files and sub-directories located within the project's
@@ -193,7 +200,7 @@ Git to tell us the status of our project:
 
 .. code-block:: console
 
-   [student-login]$ git status
+   [fta]$ git status
    # On branch main
    #
    # Initial commit
@@ -206,8 +213,8 @@ scripts and check the status again:
 
 .. code-block:: console
 
-   [student-login]$ touch python_test_1.py python_test_2.py
-   [student-login]$ git status
+   [fta]$ touch python_test_1.py python_test_2.py
+   [fta]$ git status
    # On branch master
    #
    # Initial commit
@@ -244,8 +251,8 @@ isn't keeping track of. We can instruct Git to start tracking a file using
 
 .. code-block:: console
 
-   [student-login]$ git add python_test_1.py
-   [student-login]$ git status
+   [fta]$ git add python_test_1.py
+   [fta]$ git status
    # On branch main
    #
    # Initial commit
@@ -271,7 +278,7 @@ run one more command:
 
 .. code-block:: console
 
-   [student-login]$ git commit -m "started tracking first Python script"
+   [fta]$ git commit -m "started tracking first Python script"
    [main (root-commit) 344ec9f] started tracking first Python script
     1 file changed, 29 insertions(+)
     create mode 100644 python_test_1.py
@@ -295,7 +302,7 @@ If we run ``git status`` now:
 
 .. code-block:: console
 
-   [student-login]$ git status
+   [fta]$ git status
    # On branch main
    # Untracked files:
    #   (use "git add <file>..." to include in what will be committed)
@@ -320,15 +327,15 @@ project's history using ``git log``:
 
 .. code-block:: console
 
-   [student-login]$ git log
+   [fta]$ git log
    commit 3d5d6e2c6d23aa4fb3b800b535db6a228759866e
-   Author: Joe Allen <wallen@tacc.utexas.edu>
+   Author: YOUR NAME <YOUR@EMAIL.HERE>
    Date:   Wed Jan 27 23:06:03 2021 -0600
 
        added python_test_2.py
 
    commit 344ec9fde550c6e009697b07298919946ff991f9
-   Author: Joe Allen <wallen@tacc.utexas.edu>
+   Author: YOUR NAME <YOUR@EMAIL.HERE>
    Date:   Wed Jan 27 23:00:17 2021 -0600
 
        started tracking first Python script
@@ -352,7 +359,7 @@ into the script:
 
 .. code-block:: console
 
-   [student-login]$ vim python_test_1.py
+   [fta]$ vim python_test_1.py
    # make some changes in the script
    # save and quit
 
@@ -361,7 +368,7 @@ has been modified:
 
 .. code-block:: console
 
-   [student-login]$ git status
+   [fta]$ git status
    # On branch main
    # Changes not staged for commit:
    #   (use "git add <file>..." to update what will be committed)
@@ -382,7 +389,7 @@ between the current state of the file and the most recently saved version:
 .. code-block:: console
    :emphasize-lines: 9,10
 
-   [student-login]$ git diff python_test_1.py
+   [fta]$ git diff python_test_1.py
    diff --git a/python_test_1.py b/python_test_1.py
    index 5d986e9..21877cb 100644
    --- a/python_test_1.py
@@ -414,11 +421,11 @@ After reviewing our change, it's time to commit it:
 
 .. code-block:: console
 
-   [student-login]$ git add python_test_1.py
-   [student-login]$ git commit -m "added a descriptive comment"
+   [fta]$ git add python_test_1.py
+   [fta]$ git commit -m "added a descriptive comment"
    [main 8d5f563] added a descriptive comment
     1 file changed, 1 insertion(+), 1 deletion(-)
-   [student-login]$ git status
+   [fta]$ git status
    # On branch main
    nothing to commit, working directory clean
 
@@ -440,10 +447,10 @@ it for yourself:
 
 .. code-block:: console
 
-   [student-login]$ mkdir directory
-   [student-login]$ git status
-   [student-login]$ git add directory
-   [student-login]$ git status
+   [fta]$ mkdir directory
+   [fta]$ git status
+   [fta]$ git add directory
+   [fta]$ git status
 
 Note, our newly created empty directory ``directory`` does not appear in the
 list of untracked files even if we explicitly add it (*via* ``git add``) to our
@@ -454,7 +461,7 @@ you can add all files in the directory at once by:
 
 .. code-block:: console
 
-   [student-login]$ git add <directory-with-files>
+   [fta]$ git add <NAME OF DIRECTORY>
 
 .. tip::
 
@@ -472,15 +479,15 @@ older versions of things? Let's suppose we accidentally overwrite our file:
 
 .. code-block:: console
 
-   [student-login]$ echo "" > python_test_1.py
-   [student-login]$ cat python_test_1.py
+   [fta]$ echo "" > python_test_1.py
+   [fta]$ cat python_test_1.py
 
 Now ``git status`` tells us that the file has been changed, but those changes
 haven't been staged:
 
 .. code-block:: console
 
-   [student-login]$ git status
+   [fta]$ git status
    # On branch main
    # Changes not staged for commit:
    #   (use "git add <file>..." to update what will be committed)
@@ -497,8 +504,8 @@ to the *most recent commit* of the working directory by using the identifier
 
 .. code-block:: console
 
-   [student-login]$ git checkout HEAD python_test_1.py
-   [student-login]$ cat python_test_1.py
+   [fta]$ git checkout HEAD python_test_1.py
+   [fta]$ cat python_test_1.py
    import random
    ...etc
 
@@ -513,21 +520,21 @@ instead:
 .. code-block:: console
    :emphasize-lines: 14
 
-   [student-login]$ git log
+   [fta]$ git log
    commit 8d5f563fa20060f4fbe2e10ec5cbc3c22fe92559
-   Author: Joe Allen <wallen@tacc.utexas.edu>
+   Author: YOUR NAME <YOUR@EMAIL.HERE>
    Date:   Wed Jan 27 23:15:46 2021 -0600
 
     added a descriptive comment
 
    commit 3d5d6e2c6d23aa4fb3b800b535db6a228759866e
-   Author: Joe Allen <wallen@tacc.utexas.edu>
+   Author: YOUR NAME <YOUR@EMAIL.HERE>
    Date:   Wed Jan 27 23:06:03 2021 -0600
 
     adding python_test_2.py
 
    commit 344ec9fde550c6e009697b07298919946ff991f9
-   Author: Joe Allen <wallen@tacc.utexas.edu>
+   Author: YOUR NAME <YOUR@EMAIL.HERE>
    Date:   Wed Jan 27 23:00:17 2021 -0600
 
     started tracking first Python script
@@ -535,14 +542,14 @@ instead:
 
 .. code-block:: console
 
-   [student-login]$ git checkout 344ec9f python_test_1.py
+   [fta]$ git checkout 344ec9f python_test_1.py
    # now you have a copy of python_test_1.py without that comment we added
 
 Again, we can put things back the way they were by using ``git checkout``:
 
 .. code-block:: console
 
-   [student-login]$ git checkout HEAD python_test_1.py
+   [fta]$ git checkout HEAD python_test_1.py
    # back to the most recent version
 
 
