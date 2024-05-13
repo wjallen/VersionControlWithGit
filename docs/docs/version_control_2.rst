@@ -68,6 +68,9 @@ The name ``origin`` is a local nickname for your remote repository. We could use
 something else if we wanted to, but ``origin`` is by far the most common choice.
 
 
+SSH Keys
+--------
+
 Another crucial step is to set up SSH keys for authentication. GitHub no longer
 allows simple username / password authentication from the command line. To set
 up SSH keys, click on:
@@ -301,6 +304,34 @@ project and list the appropriate citations.
 
 **.gitignore**: Tells Git which files and directories to ignore when you make a
 commit.
+
+
+Summing Up
+----------
+
+To summarize the second Git module, the important new commands we covered were:
+
+.. code-block:: text
+
+   git branch         # Get and set repository or global options
+   git push           # Create an empty Git repository or reinitialize an existing one
+   git clone          # Clone a repository into a new directory
+   git remote update  # Look for changes in a remote repository
+   git pull           # Fetch from remote repository and merge into local
+
+The key takeaway is that the general workflow has now evolved to include a remote
+repository up on the web (i.e. GitHub). Make changes locally, and frequently push
+them to GitHub:
+
+* ``git add`` => ``git commit`` => ``git push``
+
+If collaborating with others or working between multiple devices, you will find that
+you often need to pull changes from the web back down to your local repository:
+
+* ``git remote update`` => ``git pull``
+
+There are many other commands that can be discovered with ``git --help``. Additional
+help on a specific git command can be found with ``git COMMAND --help``.
 
 
 
