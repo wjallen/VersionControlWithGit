@@ -7,7 +7,7 @@ if the changes are made in different components, it is possible for something to
 break when they are integrated.
 The primary goal of Continuous Integration (CI) is to enable multiple developers
 to work on the same code base while ensuring the quality of the final product.
-After going through this module, students should
+After going through this module, you should
 be able to:
 
 * Identify the importance of CI to a large software system
@@ -349,8 +349,58 @@ check the Docker Hub repo to see if your new tag has been pushed.
    New tag automatically pushed.
 
 
+Test a Job on Frontera
+----------------------
+
+Now you have edited code on Frontera, pushed it to GitHub, and tagged a new version.
+Without ever having left the Frontera ecosystem, a new container image has been built
+and push to your userspace on Docker Hub. You can run a job on Frontera that utilizes
+the new image. Assembe a ``job.slurm`` file that looks like:
+
+.. code-block:: console
+
+   
+   #!/bin/bash
+   #SBATCH -J myjob           # Job name
+   #SBATCH -o myjob.o%j       # Name of stdout output file
+   #SBATCH -e myjob.e%j       # Name of stderr error file
+   #SBATCH -p small           # Queue (partition) name
+   #SBATCH -N 1               # Total # of nodes (must be 1 for serial)
+   #SBATCH -n 1               # Total # of mpi tasks (should be 1 for serial)
+   #SBATCH -t 00:10:00        # Run time (hh:mm:ss)
+   #SBATCH -A myproject       # Project/Allocation name (req'd if you have more than 1)
+   
+   module load tacc-apptainer
+   apptainer run docker://wjallen/pi-estimator pi.py 1000000
+
+
+
+Then submit the job but doing:
+
+.. code-block:: console
+
+   [fta]$ sbatch job.slurm
+
+
+
+A Note About Semantic Versioning
+--------------------------------
+
+There isa well-accepted standard for versioning your code called 'Semantic
+Versioning'. It follows the specification:
+
+Given a version number **MAJOR.MINOR.PATCH**, increment the:
+
+* **MAJOR** version when you make incompatible API changes,
+* **MINOR** version when you add functionality in a backwards compatible manner, and
+* **PATCH** version when you make backwards compatible bug fixes.
+
+
+
+
 Additional Resources
 --------------------
 
 * `GitHub Actions Docs <https://docs.github.com/en/actions>`_
 * `Demo Repository <https://github.com/wjallen/pi-estimator>`_
+* `Semantic Versioning <https://semver.org/>`|
