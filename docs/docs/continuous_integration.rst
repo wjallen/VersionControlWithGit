@@ -382,8 +382,8 @@ the new image. Assemble a ``job.slurm`` file that looks like:
 
 .. attention::
 
-   Replace ``USERNAME/pi-estimator`` with your Docker Hub username and repository name
-   for this workshop. You can also try: ``wjallen/pi-estimator``.
+   Replace ``USERNAME/REPONAME:TAG`` with your Docker Hub username, repository name,
+   and tag from the previous exercise. You can also try: ``wjallen/pi-estimator:0.3``.
 
 .. code-block:: bash
    :linenos:
@@ -399,7 +399,7 @@ the new image. Assemble a ``job.slurm`` file that looks like:
    #SBATCH -A myproject       # Project/Allocation name (req'd if you have more than 1)
    
    module load tacc-apptainer
-   apptainer run docker://USERNAME/pi-estimator:0.3 pi.py 10000000
+   apptainer run docker://USERNAME/REPONAME:TAG pi.py 1000000
 
 
 
