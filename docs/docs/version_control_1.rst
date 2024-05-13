@@ -155,7 +155,7 @@ If we use ``ls -a``, we can see that Git has created a hidden directory called
    [fta]$ ls -a
    ./  ../  .git/
 
-Use the ``find`` command to get a overview of the contents of the ``.git/``
+Use the ``tree`` or ``find`` command to get a overview of the contents of the ``.git/``
 directory:
 
 .. code-block:: console
@@ -436,6 +436,12 @@ we're adding a few citations to relevant research to our thesis. We might want
 to commit those additions, and the corresponding bibliography entries, but *not*
 commit some of our work drafting the conclusion (which we haven't finished yet).
 
+EXERCISE
+~~~~~~~~
+
+Add some code or comments into the second Python script. Add and commit the 
+changes to your repository. Review the commit logs to make sure the changes
+are recorded.
 
 
 Directories in Git

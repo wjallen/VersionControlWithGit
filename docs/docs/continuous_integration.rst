@@ -403,4 +403,4 @@ Additional Resources
 
 * `GitHub Actions Docs <https://docs.github.com/en/actions>`_
 * `Demo Repository <https://github.com/wjallen/pi-estimator>`_
-* `Semantic Versioning <https://semver.org/>`|
+* `Semantic Versioning <https://semver.org/>`_

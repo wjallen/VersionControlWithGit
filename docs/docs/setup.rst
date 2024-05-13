@@ -5,9 +5,12 @@ Getting Set Up
 Prerequisites
 -------------
 
+To make the most of this workshop, please make sure you have:
+
 1. `TACC account <https://accounts.tacc.utexas.edu/register>`_ (username, password, multifactor token)
 2. `GitHub Account <https://github.com/signup>`_
 3. `Docker Hub Account <https://hub.docker.com/signup>`_ (optional, but recommended)
+4. Access to a command line terminal, e.g. Terminal or WSL 2
 
 Log in to Frontera
 ------------------
@@ -90,6 +93,8 @@ If your login was successful, your terminal will look something like this:
    
       Create a nifty overview of the hardware on your system and open the "hardware.html" in a browser:
           $ lshw -html > hardware.html
+
+   login1.frontera(1000)$ _
 
 
 
