@@ -88,7 +88,6 @@ you to host your own server.
 * Connect with Github, Bitbucket and more
 
 
-
 **GitHub Actions** is a relatively new CI service used to automate, customize,
 and execute software development workflows right in your GitHub repository.
 
@@ -109,82 +108,108 @@ What Will We Do With CI?
 Two obvious and useful forms of CI we can incorporate into the development of our
 final projects with GitHub Actions include:
 
-1) Automatically run our integration tests (with pytest) each time new code is
+1. Automatically run our integration tests (with pytest) each time new code is
    pushed to GitHub
-2) Automatically build a Docker image and push it to Docker Hub each time our
+2. Automatically build a Docker image and push it to Docker Hub each time our
    code is tagged with a new release
 
 
 
-Integration Testing with GitHub Actions
+Example Code
+------------
+
+Before we begin, we need some example code to work with. Rather than write it from
+scratch, we can borrow some existing code that is already set up for unit testing
+and for containerization. Navigate to this repo on GitHub and click the 'Fork' link
+near the top right: https://github.com/wjallen/pi-estimator
+
+Once you have forked your own copy of the repo, clone it to Frontera. Make sure you
+clone the SSH URL, and make sure you are not cloning it while inside another
+repository:
+
+
+.. attention::
+
+   Replace 'USERNAME' below with your GitHub username.
+
+
+.. code-block:: console
+
+   [fta]$ cd ~/
+   [fta]$ git clone git@github.com:USERNAME/pi-estimator.git
+   [fta]$ cd pi-estimator
+   Dockerfile      README.md       pi.py           test_pi.py
+
+This repository contains four files:
+
+1. **pi.py:** Contains simple python script for estimating the value of pi
+2. **test_pi.py:** Unit test formatted for ``pytest``
+3. **Dockerfile:** Recipe for containerization
+4. **README.md:** Commands for building and testing a container
+
+
+
+
+
+Unit Testing with GitHub Actions
 ---------------------------------------
 
 To set up GitHub Actions in an existing repository, create a new folder as follows:
 
 .. code-block:: console
 
-   [user-vm]$ mkdir -p .github/workflows/
+   [fta]$ pwd
+   /home1/01234/username/pi-estimator
+   [fta]$ mkdir -p .github/workflows/
 
 Within that folder we will put YAML files describing when, how, and what workflows
-should be triggered. For instance, create a new YAML file (``.github/workflows/integration-test.yml``)
-to perform our integration testing with the following contents:
+should be triggered. For instance, create a new YAML file (``.github/workflows/unit-test.yml``)
+to perform our unit testing with the following contents:
 
 .. code-block:: yaml
 
-   name: Integration tests with pytest
+   name: Unit tests with pytest
    on: [push]
-
+   
    jobs:
-     integration-tests-with-pytest:
+     unit-tests-with-pytest:
        runs-on: ubuntu-latest
-
+   
        steps:
        - name: Check out repo
-         uses: actions/checkout@v3
-
-       - name: Create docker bridge network
-         run: docker network create API-DB-WRK
-
-       - name: Set up a database
+         uses: actions/checkout@v4
+   
+       - name: Set up Python
+         uses: actions/setup-python@v5
+         with:
+           python-version: '3.9'
+       
+       - name: Install dependencies
          run: |
-           mkdir ./data/
-           docker run --name redis-db --network API-DB-WRK -p 6379:6379 -d -v ${PWD}/data:/data redis:7 --save 1 1
-
-       - name: Build and run the API and worker
+           python -m pip install --upgrade pip
+           pip install pytest
+       
+       - name: Test with pytest
          run: |
-           docker build -f Dockerfile -t image:test .
-           docker run --name api-test --network API-DB-WRK -p 5000:5000 -d --env REDIS_IP=${RIP} image:test python3 api.py
-           docker run --name wrk-test --network API-DB-WRK -d --env REDIS_IP=${RIP} image:test python3 worker.py
-         env:
-           RIP: redis-db
-
-       - name: Run pytest
-         run: docker run --network API-DB-WRK -d --env REDIS_IP=${RIP} image:test pytest
-
-       - name: Stop images
-         run: |
-           docker stop wrk-test && docker rm -f wrk-test
-           docker stop api-test && docker rm -f api-test
-           docker stop redis-db && docker rm -f redis-db
-           docker network rm API-DB-WRK
+           pytest test_pi.py
 
 
 
-The workflow above runs our integration tests, and it is triggered on every push
+The workflow above runs our unit tests, and it is triggered on every push
 (``on: [push]``). This particular workflow will run in an ``ubuntu-latest`` VM,
-and it has 10 total ``steps``.
+and it has four total ``steps``.
 
 Some steps contain a ``uses`` keyword, which utilizes a pre-canned action from the
 catalog of GitHub Actions. For example, the pre-canned actions might be used to
 clone your whole repository or install Python3. The other stops contain a ``run``
 keyword which are the commands to run on the VM. In the above example, commands are
-run to stage the data, set up containers, and run pytest.
+run to install Pythong libraries with pip and run pytest.
 
 
 QUESTION
 ~~~~~~~~
 
-In the above example, Python v3.9 and external libraries (pytest, requests) are
+In the above example, Python v3.9 and external libraries (pytest) are
 installed in different steps. Can this be done in one step? Is there a better way
 to do it?
 
@@ -197,9 +222,9 @@ and push to GitHub.
 
 .. code-block:: console
 
-   [user-vm]$ git add *
-   [user-vm]$ git commit -m "added a new route to do something"
-   [user-vm]$ git push
+   [fta]$ git add *
+   [fta]$ git commit -m "added some new code"
+   [fta]$ git push
 
 Then navigate to the repo on GitHub and click the 'Actions' tab to watch the
 progress of the Action. You can click on your saved workflows to narrow the view,
@@ -232,66 +257,51 @@ Consider the following workflow, located in ``.github/workflows/push-to-registry
    :linenos:
 
    name: Publish Docker image
-
+   
    on:
      push:
        tags:
          - '*'
-
+   
    jobs:
      push-to-registry:
        name: Push Docker image to Docker Hub
        runs-on: ubuntu-latest
-
+   
        steps:
         - name: Check out the repo
-          uses: actions/checkout@v3
-
+          uses: actions/checkout@v4
+   
         - name: Log in to Docker Hub
-          uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+          uses: docker/login-action@v3
           with:
             username: ${{ secrets.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_PASSWORD }} 
-
+   
         - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v1 
-
+          uses: docker/setup-buildx-action@v3
+   
         - name: Extract metadata (tags, labels) for Docker
-          id: meta-api
-          uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+          id: meta
+          uses: docker/metadata-action@v5
           with:
-            images: wjallen/mldata-api 
-
+            images: wjallen/pi-estimator
+   
         - name: Build and push Docker image
-          uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+          uses: docker/build-push-action@v5
           with:
             context: .
             push: true
-            file: ./docker/Dockerfile.api
-            tags: ${{ steps.meta-api.outputs.tags }}
-            labels: ${{ steps.meta-api.outputs.labels }} 
-
-        - name: Extract metadata (tags, labels) for Docker
-          id: meta-wrk
-          uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-          with:
-            images: wjallen/mldata-wrk 
-            
-        - name: Build and push Docker image
-          uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-          with:
-            context: .
-            push: true
-            file: ./docker/Dockerfile.wrk
-            tags: ${{ steps.meta-wrk.outputs.tags }}
-            labels: ${{ steps.meta-wrk.outputs.labels }}
+            file: ./Dockerfile
+            tags: ${{ steps.meta.outputs.tags }}
+            labels: ${{ steps.meta.outputs.labels }} 
 
 
 This workflow waits is triggered when a new tag is pushed (``tag: - '*'``). As
 in the previous action, this one checks out the code and stages the sample data.
 Then, it uses the ``docker/login-action`` to log in to Docker Hub on the command
-line. The username and password can be set by navigating to Settings => Secrets =>
-New Repository Secret within the project repository.
+line. The username and password can be set by navigating to Settings => Secrets
+and variables => Actions => New Repository Secret within the project repository.
 
 .. figure:: images/secrets.png
    :width: 600
@@ -311,11 +321,8 @@ from the GitHub Actions catalogue.
 
 
 
-
-
-
 Trigger the Integration
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 To trigger the build in a real-world scenario, make some changes to your source
 code, push your modified code to GitHub and tag the release as ``X.Y.Z`` (whatever
@@ -323,14 +330,14 @@ new tag is appropriate) to trigger another automated build:
 
 .. code-block:: console
 
-   [user-vm]$ git add *
-   [user-vm]$ git commit -m "added a new route to do something"
-   [user-vm]$ git push
-   [user-vm]$ git tag -a 0.1.1 -m "release version 0.1.1"
-   [user-vm]$ git push origin 0.1.1
+   [fta]$ git add *
+   [fta]$ git commit -m "added a new route to do something"
+   [fta]$ git push
+   [fta]$ git tag -a 0.3 -m "release version 0.3"
+   [fta]$ git push origin 0.3
 
 By default, the git push command does not transfer tags, so we are explicitly
-telling git to push the tag we created (0.1.1) to the remote (origin).
+telling git to push the tag we created (0.3) to the remote (origin).
 
 Now, check the online GitHub repo to make sure your change / tag is there, and
 check the Docker Hub repo to see if your new tag has been pushed.
@@ -342,22 +349,8 @@ check the Docker Hub repo to see if your new tag has been pushed.
    New tag automatically pushed.
 
 
-Deploy to Kubernetes
---------------------
-
-The final step in our example is to update the image tag in our deployment YAML
-files in both test and prod, and apply them all. Apply to test (staging) first as
-one final check that things are working as expected. Then, deploy to prod. Because
-the old containers are Running right up until the moment the new containers are
-deployed, there is virtually no disruption in service.
-
-.. note::
-
-    Some CI / CD services can even handle the deployment to Kubernetes following
-    Docker image builds and passing tests.
-
 Additional Resources
 --------------------
 
 * `GitHub Actions Docs <https://docs.github.com/en/actions>`_
-* `Demo Repository <https://github.com/wjallen/api-demo>`_
+* `Demo Repository <https://github.com/wjallen/pi-estimator>`_
