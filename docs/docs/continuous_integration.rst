@@ -383,7 +383,7 @@ the new image. Assemble a ``job.slurm`` file that looks like:
 .. attention::
 
    Replace ``USERNAME/REPONAME:TAG`` with your Docker Hub username, repository name,
-   and tag from the previous exercise. You can also try: ``wjallen/pi-estimator:0.3``.
+   and tag from the previous exercise. You can also try: ``wjallen/pi-estimator:0.4``.
 
 .. code-block:: bash
    :linenos:
