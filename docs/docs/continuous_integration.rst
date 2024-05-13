@@ -108,8 +108,8 @@ What Will We Do With CI?
 Two obvious and useful forms of CI we can incorporate into the development of our
 final projects with GitHub Actions include:
 
-1. Automatically run our integration tests (with pytest) each time new code is
-   pushed to GitHub
+1. Automatically run unit tests (with pytest) each time new code is pushed to
+   GitHub
 2. Automatically build a Docker image and push it to Docker Hub each time our
    code is tagged with a new release
 
@@ -124,8 +124,8 @@ and for containerization. Navigate to this repo on GitHub and click the 'Fork' l
 near the top right: https://github.com/wjallen/pi-estimator
 
 Once you have forked your own copy of the repo, clone it to Frontera. Make sure you
-clone the SSH URL, and make sure you are not cloning it while inside another
-repository:
+clone the SSH URL from your fork of the repository, and make sure you are
+not cloning it while inside another repository:
 
 
 .. attention::
@@ -135,31 +135,39 @@ repository:
 
 .. code-block:: console
 
-   [fta]$ cd ~/
+   [fta]$ cd ~/git-workshop/
    [fta]$ git clone git@github.com:USERNAME/pi-estimator.git
    [fta]$ cd pi-estimator
    Dockerfile      README.md       pi.py           test_pi.py
 
 This repository contains four files:
 
-1. **pi.py:** Contains simple python script for estimating the value of pi
+1. **pi.py:** Contains simple Python script for estimating the value of pi
 2. **test_pi.py:** Unit test formatted for ``pytest``
 3. **Dockerfile:** Recipe for containerization
 4. **README.md:** Commands for building and testing a container
 
 
+EXERCISE
+~~~~~~~~
+
+Spend a few moments exploring the code, running the main script, and running the 
+unit tests interactively. Unless you first start an interactive session with 
+``idev``, please don't run anything that will take longer than ~1 second on the
+login node.
 
 
 
 Unit Testing with GitHub Actions
 ---------------------------------------
 
-To set up GitHub Actions in an existing repository, create a new folder as follows:
+To set up GitHub Actions in an existing repository, create a new **hidden**
+folder as follows:
 
 .. code-block:: console
 
    [fta]$ pwd
-   /home1/01234/username/pi-estimator
+   /home1/01234/username/git-workshop/pi-estimator
    [fta]$ mkdir -p .github/workflows/
 
 Within that folder we will put YAML files describing when, how, and what workflows
@@ -167,6 +175,7 @@ should be triggered. For instance, create a new YAML file (``.github/workflows/u
 to perform our unit testing with the following contents:
 
 .. code-block:: yaml
+   :linenos:
 
    name: Unit tests with pytest
    on: [push]
@@ -210,8 +219,8 @@ QUESTION
 ~~~~~~~~
 
 In the above example, Python v3.9 and external libraries (pytest) are
-installed in different steps. Can this be done in one step? Is there a better way
-to do it?
+installed in different steps. Why was this choice made? Can this be done
+differently? Is there a better way to do it?
 
 
 Trigger the Integration
@@ -222,7 +231,7 @@ and push to GitHub.
 
 .. code-block:: console
 
-   [fta]$ git add *
+   [fta]$ git add ./
    [fta]$ git commit -m "added some new code"
    [fta]$ git push
 
@@ -317,12 +326,13 @@ from the GitHub Actions catalogue.
 .. tip::
 
    Don't re-invent the wheel when performing GitHub Actions. There is likely an
-   existing action that already does what you're trying to do.
+   existing action that already does what you're trying to do. Navigate to your
+   repository, click the 'Actions' tab, then click 'New workflow' to browse.
 
 
 
 Trigger the Integration
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 To trigger the build in a real-world scenario, make some changes to your source
 code, push your modified code to GitHub and tag the release as ``X.Y.Z`` (whatever
@@ -330,14 +340,14 @@ new tag is appropriate) to trigger another automated build:
 
 .. code-block:: console
 
-   [fta]$ git add *
+   [fta]$ git add ./
    [fta]$ git commit -m "added a new route to do something"
    [fta]$ git push
    [fta]$ git tag -a 0.3 -m "release version 0.3"
    [fta]$ git push origin 0.3
 
 By default, the git push command does not transfer tags, so we are explicitly
-telling git to push the tag we created (0.3) to the remote (origin).
+telling git to push the tag we created (0.3) to the repository on GitHub (origin).
 
 Now, check the online GitHub repo to make sure your change / tag is there, and
 check the Docker Hub repo to see if your new tag has been pushed.
@@ -349,17 +359,35 @@ check the Docker Hub repo to see if your new tag has been pushed.
    New tag automatically pushed.
 
 
+Side Note on Semantic Versioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There isa well-accepted standard for versioning your code called
+'`Semantic Versioning <https://semver.org/>`_'. It follows the specification:
+
+Given a version number **MAJOR.MINOR.PATCH**, increment the:
+
+* **MAJOR** version when you make incompatible API changes,
+* **MINOR** version when you add functionality in a backwards compatible manner, and
+* **PATCH** version when you make backwards compatible bug fixes.
+
+
 Test a Job on Frontera
 ----------------------
 
 Now you have edited code on Frontera, pushed it to GitHub, and tagged a new version.
 Without ever having left the Frontera ecosystem, a new container image has been built
 and push to your userspace on Docker Hub. You can run a job on Frontera that utilizes
-the new image. Assembe a ``job.slurm`` file that looks like:
+the new image. Assemble a ``job.slurm`` file that looks like:
 
-.. code-block:: console
+.. attention::
 
-   
+   Replace ``USERNAME/pi-estimator`` with your Docker Hub username and repository name
+   for this workshop. You can also try: ``wjallen/pi-estimator``.
+
+.. code-block:: bash
+   :linenos:
+
    #!/bin/bash
    #SBATCH -J myjob           # Job name
    #SBATCH -o myjob.o%j       # Name of stdout output file
@@ -371,7 +399,7 @@ the new image. Assembe a ``job.slurm`` file that looks like:
    #SBATCH -A myproject       # Project/Allocation name (req'd if you have more than 1)
    
    module load tacc-apptainer
-   apptainer run docker://wjallen/pi-estimator pi.py 1000000
+   apptainer run docker://USERNAME/pi-estimator:0.3 pi.py 10000000
 
 
 
@@ -379,21 +407,11 @@ Then submit the job but doing:
 
 .. code-block:: console
 
-   [fta]$ sbatch job.slurm
+   [fta]$ sbatch --reservation=Github_training job.slurm
 
 
-
-A Note About Semantic Versioning
---------------------------------
-
-There isa well-accepted standard for versioning your code called 'Semantic
-Versioning'. It follows the specification:
-
-Given a version number **MAJOR.MINOR.PATCH**, increment the:
-
-* **MAJOR** version when you make incompatible API changes,
-* **MINOR** version when you add functionality in a backwards compatible manner, and
-* **PATCH** version when you make backwards compatible bug fixes.
+Once the job completes, check the output files to see if your containerized code
+has in fact been run on Frontera.
 
 
 
@@ -402,5 +420,6 @@ Additional Resources
 --------------------
 
 * `GitHub Actions Docs <https://docs.github.com/en/actions>`_
+* `GitHub Actions Examples <https://docs.github.com/en/actions/examples>`_
 * `Demo Repository <https://github.com/wjallen/pi-estimator>`_
 * `Semantic Versioning <https://semver.org/>`_
